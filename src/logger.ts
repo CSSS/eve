@@ -15,7 +15,7 @@ const winstonLogger = createLogger({
             format: combine(myTimestamp(), myFormat)
         }),
         new transports.File({
-            filename: 'custom2.log',
+            filename: 'errors.log',
             level: 'error',
             format: combine(myTimestamp(), myFormat)
         }),
