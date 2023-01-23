@@ -5,7 +5,10 @@ import { bot } from '../botClient';
 
 export class PingCommand extends Command {
   public constructor(context: Command.Context, options: Command.Options) {
-    super(context, { ...options });
+    super(context, {
+      ...options,
+      description: "Ping the server and see how laggy you are for yourself!"
+    });
   }
 
   public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
@@ -15,27 +18,23 @@ export class PingCommand extends Command {
   }
 
   public async chatInputRun(interaction: Command.ChatInputInteraction) {
+    await interaction.deferReply();
+    const runID = `[PingCommand ChatInputRun #${interaction.id}]`;
+    winstonLogger.log('info', `${runID} Called from ${interaction.user.username}`)
+
     const embed = new MessageEmbed({
       author: Object.assign(bot.user!, { name: bot.user?.username }),
       footer: {
         text: "Loading..."
       }
     })
-    await interaction.deferReply();
-    const runID = `[PingCommand ChatInputRun #${interaction.id}]`;
-    winstonLogger.log('info', `${runID} Called from ${interaction.user.username}`)
-
     const msg = await interaction.followUp({ embeds: [embed] });
-    if (msg instanceof Message) {
-      const diff = msg.createdTimestamp - interaction.createdTimestamp;
-      const ping = Math.round(this.container.client.ws.ping);
-      winstonLogger.log('info', `${runID} Run Success!`)
-      embed.footer!.text = `Pong 🏓! (Round trip took: ${diff}ms. Heartbeat: ${ping}ms.)`;
-      return interaction.editReply({ embeds: [embed] });
-    }
-
-    winstonLogger.log('error', `${runID} Run failure. Msg is not an instance of Discord.Message`)
-    embed.footer!.text = 'Failed to retrieve ping :(';
-    return interaction.editReply({ embeds: [embed] });;
+    const ping = Math.round(this.container.client.ws.ping);
+    const diff = msg instanceof Message?
+      `Round trip took: ${msg.createdTimestamp - interaction.createdTimestamp}ms. Heartbeat: ${ping}ms.`:
+      "I can't you how long it took because Discord gave me something else other than Message...? This error message probably doesn't mean anything to you but whatever.";
+    winstonLogger.log('info', `${runID} Run Success!`)
+    embed.footer!.text = `Pong 🏓! (${diff})`;
+    return interaction.editReply({ embeds: [embed] });
   }
 }
