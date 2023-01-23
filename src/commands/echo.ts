@@ -20,6 +20,8 @@ export class EchoCommand extends Command {
     }
 
 	public async chatInputRun(interaction: Command.ChatInputInteraction, context: ChatInputCommand.RunContext) {
+		const runID = `[EchoCommand ChatInputRun #${interaction.id}]`;
+		console.log('echo', `${runID} Called from ${interaction.user.username}`)
 		return interaction.reply({
 			embeds: [
 				new MessageEmbed({

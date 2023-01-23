@@ -1,4 +1,5 @@
-import { createLogger, transports, format } from "winston";
+import { createLogger, format, transports } from "winston";
+import { FileTransportOptions } from "winston/lib/winston/transports";
 const { combine, timestamp, printf } = format
 
 const myTimestamp = () => timestamp({ format: 'YYYY-MM-DD HH:mm:ss' })
@@ -6,20 +7,22 @@ const myFormat = printf((parms) => {
     return `[${parms.timestamp}] ${parms.level}: ${parms.message}`;
 });
 
-
+const defaultWinstonInfoFileTransports = (options: Partial<FileTransportOptions> = {}) => new transports.File(Object.assign({
+    filename: 'custom.log',
+    level: 'info',
+    format: combine(myTimestamp(), myFormat)
+}, options))
+const defaultWinstonErrorsFileTransports = (options: Partial<FileTransportOptions> = {}) => new transports.File(Object.assign({
+    filename: 'errors.log',
+    level: 'error',
+    format: combine(myTimestamp(), myFormat)
+}, options))
 const winstonLogger = createLogger({
     transports: [
-        new transports.File({
-            filename: 'custom.log',
-            level: 'info',
-            format: combine(myTimestamp(), myFormat)
-        }),
-        new transports.File({
-            filename: 'errors.log',
-            level: 'error',
-            format: combine(myTimestamp(), myFormat)
-        }),
+        defaultWinstonInfoFileTransports(),
+        defaultWinstonErrorsFileTransports(),
     ]
 })
 
-export default winstonLogger;
+export { defaultWinstonErrorsFileTransports, defaultWinstonInfoFileTransports, winstonLogger };
+
