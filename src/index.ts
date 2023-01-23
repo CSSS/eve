@@ -11,18 +11,6 @@ const newConsole = {
             log.apply(console, args);
         }
     },
-    // info: function (text: string) {
-    //     oldCons.info(text);
-    //     // Your code
-    // },
-    // warn: function (text: string) {
-    //     oldCons.warn(text);
-    //     // Your code
-    // },
-    // error: function (text: string) {
-    //     oldCons.error(text);
-    //     // Your code
-    // }
 };
 Object.assign(console, newConsole);
 start()
