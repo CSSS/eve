@@ -20,13 +20,15 @@ export class EchoCommand extends Command {
     }
 
 	public async chatInputRun(interaction: Command.ChatInputInteraction, context: ChatInputCommand.RunContext) {
+		const author = Object.assign(interaction.user, { name: interaction.user.username, icon_url: interaction.user.avatarURL() || undefined });
+		const message = interaction.options.data.map(_ => typeof(_.value) === 'string' ? _.value : "").join("")
 		const runID = `[EchoCommand ChatInputRun #${interaction.id}]`;
-		console.log('echo', `${runID} Called from ${interaction.user.username}`)
+		console.log('echo', `${runID} ${interaction.user.username} echoed: "${message}"`)
 		return interaction.reply({
 			embeds: [
 				new MessageEmbed({
-					author: Object.assign(interaction.user, { name: interaction.user.username, icon_url: interaction.user.avatarURL() || undefined }),
-					description: interaction.options.data.map(_ => typeof(_.value) === 'string' ? _.value : "").join("")
+					author: author,
+					description: message,
 				})
 			]
 		})
