@@ -3,10 +3,7 @@ import { Message, MessageEmbed } from 'discord.js';
 
 export class PingCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
-		super(context, {
-			...options,
-			description: "Ping the server and see how laggy you are for yourself!"
-		});
+		super(context, {...options});
 	}
 
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
@@ -24,9 +21,7 @@ export class PingCommand extends Command {
 
 		const embed = new MessageEmbed({
 			author: Object.assign(interaction.user, { name: interaction.user.username, icon_url: interaction.user.avatarURL() || undefined }),
-			footer: {
-				text: "Sending ping..."
-			}
+			footer: { text: "Sending ping..." }
 		})
 		const msg = await interaction.followUp({ embeds: [embed] });
 		const ping = Math.round(this.container.client.ws.ping);

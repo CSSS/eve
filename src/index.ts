@@ -1,12 +1,5 @@
-import Winston from "winston";
 import { start } from "./botClient";
 import { defaultWinstonInfoFileTransports, winstonLogger } from "./logger";
-const WinstonTransports = Winston.transports;
-const WinstonFormat = Winston.format;
-const myTimestamp = () => WinstonFormat.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' })
-const myFormat = WinstonFormat.printf((parms) => {
-    return `[${parms.timestamp}] ${parms.level}: ${parms.message}`;
-});
 
 const log = console.log;
 const newConsole = {
@@ -17,7 +10,7 @@ const newConsole = {
             console.info(`Logging with custom new name: ${customName}`)
             
             winstonLogger.configure({
-                transports: defaultWinstonInfoFileTransports({ filename: `${customName}.log` }),
+                transports: defaultWinstonInfoFileTransports({ filename: `logs/${customName}.log` }),
             })
             winstonLogger.log('info', args.join(' '));
             log.apply(console, args);

@@ -8,12 +8,12 @@ const myFormat = printf((parms) => {
 });
 
 const defaultWinstonInfoFileTransports = (options: Partial<FileTransportOptions> = {}) => new transports.File(Object.assign({
-    filename: 'custom.log',
+    filename: 'logs/custom.log',
     level: 'info',
     format: combine(myTimestamp(), myFormat)
 }, options))
 const defaultWinstonErrorsFileTransports = (options: Partial<FileTransportOptions> = {}) => new transports.File(Object.assign({
-    filename: 'errors.log',
+    filename: 'logs/errors.log',
     level: 'error',
     format: combine(myTimestamp(), myFormat)
 }, options))
