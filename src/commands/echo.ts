@@ -1,5 +1,6 @@
 import { ChatInputCommand, Command } from "@sapphire/framework";
 import { MessageEmbed } from "discord.js";
+import Watcher from "../watcher";
 
 export class EchoCommand extends Command {
     public constructor (context: Command.Context, options: Command.Options) {
@@ -7,6 +8,7 @@ export class EchoCommand extends Command {
     }
 
     public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
+		Watcher.Add('echo', '571180141980549126');
         registry.registerChatInputCommand(builder => {
             builder
 				.setName("echo")

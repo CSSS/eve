@@ -1,5 +1,6 @@
 import { ChatInputCommand, Command } from '@sapphire/framework';
 import { Message, MessageEmbed } from 'discord.js';
+import Watcher from '../watcher';
 
 export class PingCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
@@ -7,6 +8,7 @@ export class PingCommand extends Command {
 	}
 
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
+		Watcher.Add('ping', '571180141980549126');
 		registry.registerChatInputCommand((builder) =>
 			builder
 				.setName('ping')
