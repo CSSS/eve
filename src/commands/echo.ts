@@ -1,5 +1,5 @@
 import { ChatInputCommand, Command } from "@sapphire/framework";
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import Watcher from "../watcher";
 
 export class EchoCommand extends Command {
@@ -21,14 +21,14 @@ export class EchoCommand extends Command {
         })
     }
 
-	public async chatInputRun(interaction: Command.ChatInputInteraction, context: ChatInputCommand.RunContext) {
+	public async chatInputRun(interaction: Command.ChatInputCommandInteraction, context: ChatInputCommand.RunContext) {
 		const author = Object.assign(interaction.user, { name: interaction.user.username, icon_url: interaction.user.avatarURL() || undefined });
 		const message = interaction.options.data.map(_ => typeof(_.value) === 'string' ? _.value : "").join("")
 		const runID = `[EchoCommand ChatInputRun #${interaction.id}]`;
 		console.log('echo', `${runID} ${interaction.user.username} echoed: "${message}"`)
 		return interaction.reply({
 			embeds: [
-				new MessageEmbed({
+				new EmbedBuilder({
 					author: author,
 					description: message,
 				})

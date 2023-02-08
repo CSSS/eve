@@ -1,5 +1,10 @@
 import { SapphireClient as Client } from "@sapphire/framework";
-const bot = new Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] })
+import { GatewayIntentBits } from "discord.js";
+const bot = new Client({ intents: [
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.Guilds
+] })
 
 bot.on('ready', () => {
     console.log("Starting bot!!")
