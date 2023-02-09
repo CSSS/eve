@@ -1,4 +1,4 @@
-import Discord from 'discord.js';
+import Discord, { ChannelType } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import Bot from './botClient';
@@ -16,11 +16,11 @@ class Watcher {
         const guild = this.instance.guildCache[guildID] || await Bot.Client.guilds.fetch(guildID);
         this.instance.guildCache[guildID] = guild;
 
-        const categoryChannels = Array.from(guild.channels.cache.filter(_c => _c.type === 'GUILD_CATEGORY' && _c.name === "EVE LOGS").values()) as Discord.CategoryChannel[];
+        const categoryChannels = Array.from(guild.channels.cache.filter(_c => _c.type === ChannelType.GuildCategory && _c.name === "EVE LOGS").values()) as Discord.CategoryChannel[];
         if (categoryChannels.length > 1) {
             const chosenCat = categoryChannels.shift()!;
             categoryChannels.forEach(_cc => {
-                const allchildren = Array.from(_cc.children.values());
+                const allchildren = Array.from(_cc.children.valueOf().values());
                 allchildren.forEach(_c => {
                     _c.setParent(chosenCat);
                 });
@@ -70,17 +70,18 @@ class Watcher {
         
         // get category
         await this.RefreshLogChannels(guildID);
-        let category = this.instance.categoryCache[guildID] || guild.channels.cache.find(_c => _c.type === 'GUILD_CATEGORY' && _c.name === 'EVE LOGS');
+        let category = this.instance.categoryCache[guildID] || guild.channels.cache.find(_c => _c.type === ChannelType.GuildCategory && _c.name === 'EVE LOGS');
         if (!(category && category instanceof Discord.CategoryChannel && category.deletable === true)) {
-            category = await guild.channels.create("EVE LOGS", { type: 'GUILD_CATEGORY' });
+            category = await guild.channels.create({ name: "EVE LOGS", type: ChannelType.GuildCategory });
         }
 
         // get channel
         let channel = this.instance.channelCache[guildID+commandName] || guild.channels.cache.find(_c => _c.name == commandName);
         if (!(channel && channel instanceof Discord.TextChannel && channel.deletable === true)) {
             console.info(`channel "${commandName}" does not exist or is not a textchannel`)
-            channel = await guild.channels.create(commandName, {
-                type: 'GUILD_TEXT'
+            channel = await guild.channels.create({
+                name: commandName,
+                type: ChannelType.GuildText
             });
         }
 
