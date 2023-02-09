@@ -13,6 +13,7 @@
     "@sapphire/framework": "^4.1.0",
     "@types/winston": "^2.4.4",
     "discord.js": "^14.7.1",
+    "firebase-admin": "^11.5.0",
     "winston": "^3.8.2"
   },
   "devDependencies": {
