@@ -1,5 +1,5 @@
 // @ts-ignore
-import Discord, {ChannelType} from "discord.js"
+import Discord, { ChannelType } from 'discord.js';
 // @ts-ignore
 import fs from 'fs';
 // @ts-ignore

@@ -31,8 +31,8 @@ namespace WinstonLogger {
         level: 'error',
         format: combine(myTimestamp(), myFormat)
     }, options))
-    export const Initialise = async (cmd: null | string = null) => {
-        if (cmd === null) {
+    export const Initialise = async (cmd: string | null = null) => {
+        if (cmd === null){
             cmd = "eve";
         }
         const winstonLogger = createLogger({
@@ -41,7 +41,7 @@ namespace WinstonLogger {
                 defaultWinstonErrorsFileTransports(cmd),
             ]
         })
-        if (cmd === "eve") {
+        if (cmd === "eve"){
             Object.assign(console,
                 {
                     log: function (args: any) {
