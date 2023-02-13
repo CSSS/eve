@@ -3,8 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import Bot from './botClient';
 
-const logsPath = '../logs/'
-
 class Watcher {
     private static instance: Watcher;
 
@@ -101,7 +99,7 @@ class Watcher {
         channel.setParent(category);
 
         // assign watcher
-        const relativePath = path.resolve(`${__dirname}\\${logsPath}\\${commandName}.log`);
+        const relativePath = path.resolve(`logs/${commandName}.log`);
         this.AddWatcher(relativePath, channel);
     }
 

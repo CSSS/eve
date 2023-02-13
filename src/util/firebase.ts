@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import path from 'path';
 
-var serviceAccount = require(path.resolve(__dirname + '../../../firebase.json'));
+var serviceAccount = require(path.resolve('firebase.json'));
 
 initializeApp({
   credential: credential.cert(serviceAccount),
