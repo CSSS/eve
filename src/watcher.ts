@@ -27,6 +27,9 @@ class Watcher {
                 if (_cc.deletable) _cc.delete().catch(_err => console.error);
             });
         }
+        else if (categoryChannels.length === 0) {
+            
+        }
     }
 
     public static AddWatcher(relativePath: fs.PathLike, channel: Discord.TextChannel) {
@@ -71,18 +74,27 @@ class Watcher {
         // get category
         await this.RefreshLogChannels(guildID);
         let category = this.instance.categoryCache[guildID] || guild.channels.cache.find(_c => _c.type === ChannelType.GuildCategory && _c.name === 'EVE LOGS');
-        if (!(category && category instanceof Discord.CategoryChannel && category.deletable === true)) {
+        if (category && category instanceof Discord.CategoryChannel) {
+            console.info(`${commandName}: category exists`)
+        }
+        else {
+            console.info(`${commandName}: category doesn't exist yet. creating...`)
             category = await guild.channels.create({ name: "EVE LOGS", type: ChannelType.GuildCategory });
         }
+        this.instance.categoryCache[guildID] = category
 
         // get channel
         let channel = this.instance.channelCache[guildID+commandName] || guild.channels.cache.find(_c => _c.name == commandName);
-        if (!(channel && channel instanceof Discord.TextChannel && channel.deletable === true)) {
-            console.info(`channel "${commandName}" does not exist or is not a textchannel`)
+        if (channel && channel instanceof Discord.TextChannel) {
+            console.info(`${commandName}: channel exists already.`)
+        }
+        else {
+            console.info(`${commandName}: channel "${commandName}" does not exist or is not a textchannel`)
             channel = await guild.channels.create({
                 name: commandName,
                 type: ChannelType.GuildText
             });
+            this.instance.channelCache[guildID+commandName] = channel;
         }
 
         // set channel's parent to category
