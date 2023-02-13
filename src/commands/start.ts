@@ -31,15 +31,7 @@ export class StartCommand extends Command {
                     .setMinValues(num)
                     .setMaxValues(num)
             );
-        
 
         return interaction.followUp({ content: "Pick the associated players.", components: [row] })
-        // green button executes go
-
-        // while loop runs the slider
-
-        // red button shuts it down
-
-        // follow-up concludes command
     }
 }
