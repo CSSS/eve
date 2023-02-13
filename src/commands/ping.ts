@@ -7,8 +7,10 @@ export class PingCommand extends Command {
 		super(context, {...options});
 	}
 
-	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
-		Watcher.Add('ping', '571180141980549126');
+	// public override 
+
+	public override async registerApplicationCommands(registry: ChatInputCommand.Registry) {
+		await Watcher.Add('ping', process.env.GUILD_ID!);
 		registry.registerChatInputCommand((builder) =>
 			builder
 				.setName('ping')

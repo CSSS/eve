@@ -7,8 +7,8 @@ export class EchoCommand extends Command {
         super(context, {...options})
     }
 
-    public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
-		Watcher.Add('echo', '571180141980549126');
+    public override async registerApplicationCommands(registry: ChatInputCommand.Registry) {
+		await Watcher.Add('echo', process.env.GUILD_ID!);
         registry.registerChatInputCommand(builder => {
             builder
 				.setName("echo")
