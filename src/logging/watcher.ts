@@ -32,7 +32,8 @@ export class Watcher {
         }
     }
 
-    public static async Add(commandName: null|string = null) {
+
+    public static async Add(commandName: string | null = null) {
         if (commandName === null){
             commandName = 'eve';
         }
