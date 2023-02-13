@@ -30,15 +30,15 @@ namespace WinstonLogger {
         const newConsole = {
             log: function(){
                 const args = Array.from(arguments);
-                const customName = args.shift();
-                if (args.length > 0) {
+                const customName = args[0];
+                if (args.length > 1) {
                     console.info(`Logging with custom new name: ${customName}`)
             
                     winstonLogger.configure({
                         transports: defaultWinstonInfoFileTransports({ filename: `logs/${customName}.log` }),
                     })
-                    winstonLogger.log('info', args.join(' '));
-                    log.apply(console, args);
+                    winstonLogger.log('info', args.slice(1, args.length).join(' '));
+                    log.apply(console, args.slice(1, args.length));
                 }
                 else {
                     console.info(`Returning to default transports`)
