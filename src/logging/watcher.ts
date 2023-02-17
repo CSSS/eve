@@ -1,7 +1,7 @@
 import Discord, { ChannelType } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
-import Bot from './botClient';
+import Bot from '../botClient';
 
 class Watcher {
     private static instance: Watcher;
