@@ -1,6 +1,6 @@
 import { ChatInputCommand, Command } from "@sapphire/framework";
 import { EmbedBuilder } from "discord.js";
-import Watcher from "../watcher";
+import Watcher from "../logging/watcher";
 
 export class EchoCommand extends Command {
     public constructor (context: Command.Context, options: Command.Options) {
