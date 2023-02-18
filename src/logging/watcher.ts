@@ -5,8 +5,7 @@ import fs from 'fs';
 // @ts-ignore
 import path from 'path';
 import Bot from '../botClient';
-
-import {logFileExtension, loggerNameSuffixError, loggerNameSuffixInfo, logsPath} from "./logger";
+import {logFileExtension, loggerNameSuffixError, loggerNameSuffixInfo, logsPath, process_time} from "./logger";
 
 export class Watcher {
     private static instance: Watcher;
@@ -94,8 +93,8 @@ export class Watcher {
         info_channel.setParent(category);
 
         // assign watcher
-        this.AddWatcher(path.resolve(`${logsPath}${commandName}${loggerNameSuffixError}${logFileExtension}`), error_channel);
-        this.AddWatcher(path.resolve(`${logsPath}${commandName}${loggerNameSuffixInfo}${logFileExtension}`), info_channel);
+        this.AddWatcher(path.resolve(`${logsPath}${process_time}-${commandName}${loggerNameSuffixError}${logFileExtension}`), error_channel);
+        this.AddWatcher(path.resolve(`${logsPath}${process_time}-${commandName}${loggerNameSuffixInfo}${logFileExtension}`), info_channel);
     }
 
     public static AddWatcher(relativePath: fs.PathLike, channel: Discord.TextChannel) {
@@ -122,8 +121,10 @@ export class Watcher {
 
                     // send the read bytes in string format in discord channel
                     const msgString = buffer.toString('utf8', 0, num);
-                    if (msgString.length > 0) {
-                        channel.send(msgString);
+                    for (const line of msgString.split(/[\r\n]+/)){
+                        if (line.length > 0){
+                            channel.send(line);
+                        }
                     }
                 });
             });
