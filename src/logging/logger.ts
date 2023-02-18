@@ -1,57 +1,60 @@
 import { createLogger, format as WinstonFormat, transports as WinstonTransports } from "winston";
 import { FileTransportOptions } from "winston/lib/winston/transports";
+import {Watcher} from "./watcher";
+export let logsPath = "logs/";
+
+
+export let loggerNameSuffixInfo = "-info";
+
+
+export let loggerNameSuffixError = "-error";
+
+
+export let logFileExtension = ".log";
 
 // set up winston logger
 namespace WinstonLogger {
-    const { combine, timestamp, printf } = WinstonFormat
-    const myTimestamp = () => timestamp({ format: 'YYYY-MM-DD HH:mm:ss' })
+    const {combine, timestamp, printf} = WinstonFormat
+    const myTimestamp = () => timestamp({format: 'YYYY-MM-DD HH:mm:ss'})
     const myFormat = printf((parms) => {
         return `[${parms.timestamp}] ${parms.level}: ${parms.message}`;
     });
-    const defaultWinstonInfoFileTransports = (options: Partial<FileTransportOptions> = {}) => new WinstonTransports.File(Object.assign({
-        filename: 'logs/custom.log',
-        level: 'info',
-        format: combine(myTimestamp(), myFormat)
-    }, options))
-    const defaultWinstonErrorsFileTransports = (options: Partial<FileTransportOptions> = {}) => new WinstonTransports.File(Object.assign({
-        filename: 'logs/errors.log',
+    const defaultWinstonInfoFileTransports = (cmd: any = null, options: Partial<FileTransportOptions> = {}) => {
+        return new WinstonTransports.File(Object.assign({
+            filename: `${logsPath}${cmd}${loggerNameSuffixInfo}${logFileExtension}`,
+            level: 'info',
+            format: combine(myTimestamp(), myFormat)
+        }, options))
+    }
+    const defaultWinstonErrorsFileTransports = (cmd: any = null, options: Partial<FileTransportOptions> = {}) => new WinstonTransports.File(Object.assign({
+        filename: `${logsPath}${cmd}${loggerNameSuffixError}${logFileExtension}`,
         level: 'error',
         format: combine(myTimestamp(), myFormat)
     }, options))
-    const winstonLogger = createLogger({
-        transports: [
-            defaultWinstonInfoFileTransports(),
-            defaultWinstonErrorsFileTransports(),
-        ]
-    })
-    export const Initialise = () => {
-        // modify the global console
-        const log = console.log;
-        const newConsole = {
-            log: function(){
-                const args = Array.from(arguments);
-                const customName = args[0];
-                if (args.length > 1) {
-                    console.info(`Logging with custom new name: ${customName}`)
-            
-                    winstonLogger.configure({
-                        transports: defaultWinstonInfoFileTransports({ filename: `logs/${customName}.log` }),
-                    })
-                    winstonLogger.log('info', args.slice(1, args.length).join(' '));
-                    log.apply(console, args.slice(1, args.length));
+    export const Initialise = async (cmd: null | string = null) => {
+        if (cmd === null) {
+            cmd = "eve";
+        }
+        const winstonLogger = createLogger({
+            transports: [
+                defaultWinstonInfoFileTransports(cmd),
+                defaultWinstonErrorsFileTransports(cmd),
+            ]
+        })
+        if (cmd === "eve") {
+            Object.assign(console,
+                {
+                    log: function (args: any) {
+                        winstonLogger.info(args);
+                    }
+                    // modify the global console
                 }
-                else {
-                    console.info(`Returning to default transports`)
-            
-                    winstonLogger.configure({
-                        transports: defaultWinstonInfoFileTransports()
-                    })
-                    winstonLogger.log('info', customName);
-                    log(customName);
-                }
-            },
-        };
-        Object.assign(console, newConsole);
+            );
+            await Watcher.Add(cmd)
+        } else {
+            await Watcher.Add(cmd)
+            return winstonLogger;
+        }
     }
 }
 
