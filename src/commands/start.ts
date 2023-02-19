@@ -18,7 +18,7 @@ export class StartCommand extends Command {
         });
     }
 
-    public async chatInputRun(interaction: Command.ChatInputCommandInteraction, context: ChatInputCommand.RunContext) {
+    public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
         await interaction.deferReply();
 
         const num: number = interaction.options.getInteger('num')!;

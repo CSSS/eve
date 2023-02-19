@@ -16,6 +16,9 @@ namespace Bot {
     export function Start() {
         bot.login(process.env.TOKEN_ID);
     }
+    export function GetUser(id: string) {
+        return bot.users.fetch(id);
+    }
 }
 
 export default Bot;
