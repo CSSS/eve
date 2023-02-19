@@ -7,7 +7,6 @@ export class SelectCommand extends Command {
     }
 
     public override async registerApplicationCommands(registry: ChatInputCommand.Registry) {
-        const classes = (await EVEBase.GetClasses()).map(_ => { return { name: _, value: _ }})
         registry.registerChatInputCommand(builder => {
             return builder
                 .setName("select")
@@ -16,14 +15,16 @@ export class SelectCommand extends Command {
                     .setName("class")
                     .setDescription("your class of choice")
                     .setRequired(true)
-                    .addChoices(...classes)
-                )
-        });
+                    .setAutocomplete(true))
+        })
     }
 
     public async chatInputRun(interaction: Command.ChatInputCommandInteraction, context: ChatInputCommand.RunContext) {
         await interaction.deferReply();
-
         
+        const option = interaction.options.getString('class')!
+        const writeResult = await EVEBase.SetUser(interaction.user.id, 'class', option);
+
+        return await interaction.followUp("You chose " + option);
     }
 }
