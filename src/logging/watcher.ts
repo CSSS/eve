@@ -5,7 +5,7 @@ import fs from 'fs';
 // @ts-ignore
 import path from 'path';
 import Bot from '../botClient';
-import {logFileExtension, loggerNameSuffixError, loggerNameSuffixInfo, logsPath, process_time} from "./logger";
+import { logFileExtension, loggerNameSuffixError, loggerNameSuffixInfo, logsPath, process_time } from "./logger";
 
 export class Watcher {
     private static instance: Watcher;
@@ -31,66 +31,64 @@ export class Watcher {
         }
     }
 
-
-    public static async Add(commandName: string | null = null) {
-        if (commandName === null){
-            commandName = 'eve';
+    public static async Add(commandName: string = 'eve') {
+        if (this.instance === undefined) {
+            this.instance = new Watcher();
         }
-        this.instance = new Watcher();
 
         // get guild
-        console.log(process.env.BOT_TOKEN)
-        this.instance.guildCache[process.env.GUILD_ID!] = await Bot.Client.guilds.fetch(process.env.GUILD_ID!);
+        if (!this.instance.guildCache[process.env.GUILD_ID!]) {
+            this.instance.guildCache[process.env.GUILD_ID!] = await Bot.Client.guilds.fetch(process.env.GUILD_ID!);
+        }
+        const guild = this.instance.guildCache[process.env.GUILD_ID!];
 
         // get category
         await this.RefreshLogChannels(process.env.GUILD_ID!);
-        let category = this.instance.categoryCache[process.env.GUILD_ID!] || this.instance.guildCache[process.env.GUILD_ID!].channels.cache.find((_c: { type: ChannelType; name: string; }) => _c.type === ChannelType.GuildCategory && _c.name === 'EVE LOGS');
+        let category = this.instance.categoryCache[process.env.GUILD_ID!] || guild.channels.cache.find((_c: { type: ChannelType; name: string; }) => _c.type === ChannelType.GuildCategory && _c.name === 'EVE LOGS');
         if (category && category instanceof Discord.CategoryChannel) {
             console.info(`${commandName}: category exists`)
         }
         else {
             console.info(`${commandName}: category doesn't exist yet. creating...`)
-            category = await this.instance.guildCache[process.env.GUILD_ID!].channels.create({ name: "EVE LOGS", type: ChannelType.GuildCategory });
+            category = await guild.channels.create({ name: "EVE LOGS", type: ChannelType.GuildCategory });
         }
         this.instance.categoryCache[process.env.GUILD_ID!] = category
 
-
+        // creating the info channel
         const info_channel_name = `${commandName}${loggerNameSuffixInfo}`
-
-        // get channel
-        let info_channel = this.instance.channelCache[process.env.GUILD_ID+info_channel_name] || this.instance.guildCache[process.env.GUILD_ID!].channels.cache.find((_c: { name: string; }) => _c.name == info_channel_name);
+        let info_channel = this.instance.channelCache[process.env.GUILD_ID+info_channel_name] || guild.channels.cache.find((_c) => _c.name == info_channel_name);
         if (info_channel && info_channel instanceof Discord.TextChannel) {
-            console.info(`${info_channel_name}: channel exists already.`)
+            console.info(`${commandName}: ${info_channel_name}: channel exists already.`)
         }
         else {
             console.info(`${commandName}: channel "${info_channel_name}" does not exist or is not a textchannel`)
-            info_channel = await this.instance.guildCache[process.env.GUILD_ID!].channels.create({
+            info_channel = await guild.channels.create({
                 name: info_channel_name,
                 type: ChannelType.GuildText
             });
-            this.instance.channelCache[this.instance.guildCache[process.env.GUILD_ID!]+commandName] = info_channel;
+            this.instance.channelCache[guild+commandName] = info_channel;
         }
 
+        // creating the error channel
         const error_channel_name = `${commandName}${loggerNameSuffixError}`
-
-        let error_channel = this.instance.channelCache[process.env.GUILD_ID+error_channel_name] || this.instance.guildCache[process.env.GUILD_ID!].channels.cache.find((_c: { name: string; }) => _c.name == error_channel_name);
+        let error_channel = this.instance.channelCache[process.env.GUILD_ID+error_channel_name] || guild.channels.cache.find((_c) => _c.name == error_channel_name);
         if (error_channel && error_channel instanceof Discord.TextChannel) {
-            console.info(`${commandName}: channel exists already.`)
+            console.info(`${commandName}: ${error_channel_name}: channel exists already.`)
         }
         else {
             console.info(`${commandName}: channel "${error_channel_name}" does not exist or is not a textchannel`)
-            error_channel = await this.instance.guildCache[process.env.GUILD_ID!].channels.create({
+            error_channel = await guild.channels.create({
                 name: error_channel_name,
                 type: ChannelType.GuildText
             });
-            this.instance.channelCache[await this.instance.guildCache[process.env.GUILD_ID!]+commandName] = error_channel;
+            this.instance.channelCache[guild+commandName] = error_channel;
         }
 
         // set channel's parent to category
         console.log(`setting category for ${error_channel_name} to ${category.name}`)
-        error_channel.setParent(category);
+        await error_channel.setParent(category);
         console.log(`setting category for ${info_channel_name} to ${category.name}`)
-        info_channel.setParent(category);
+        await info_channel.setParent(category);
 
         // assign watcher
         this.AddWatcher(path.resolve(`${logsPath}${process_time}-${commandName}${loggerNameSuffixError}${logFileExtension}`), error_channel);
@@ -131,16 +129,16 @@ export class Watcher {
         });
         this.instance.FSwatchers.push(fswatcher);
     }
+
     private constructor() {
         this.FSwatchers = [];
         this.guildCache = {};
         this.channelCache = {};
         this.categoryCache = {};
     }
+
     private FSwatchers: fs.StatWatcher[];
     private guildCache: Record<string, Discord.Guild>;
     private channelCache: Record<string, Discord.TextChannel>;
     private categoryCache: Record<string, Discord.CategoryChannel>;
-
-
 }
