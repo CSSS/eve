@@ -1,9 +1,10 @@
 import { ChatInputCommand, Command } from '@sapphire/framework';
 import { EmbedBuilder, Message } from 'discord.js';
+import { Logger } from 'winston';
 import WinstonLogger from "../logging/logger";
 
 export class PingCommand extends Command {
-	private logger: any;
+	private logger?: Logger;
 	public constructor(context: Command.Context, options: Command.Options) {
 		super(context, {...options});
 	}
@@ -21,7 +22,7 @@ export class PingCommand extends Command {
 	public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
 		await interaction.deferReply();
 		const runID = `[PingCommand ChatInputRun #${interaction.id}]`;
-		this.logger.info(`${runID} Called from ${interaction.user.username}`)
+		this.logger?.info(`${runID} Called from ${interaction.user.username}`)
 
 		const embed = new EmbedBuilder({
 			author: Object.assign(interaction.user, { name: interaction.user.username, icon_url: interaction.user.avatarURL() || undefined }),
@@ -32,7 +33,7 @@ export class PingCommand extends Command {
 		const diff = msg instanceof Message ?
 			`Round trip took: ${msg.createdTimestamp - interaction.createdTimestamp}ms. Heartbeat: ${ping}ms.` :
 			"I can't you how long it took because Discord gave me something else other than Message...? This error message probably doesn't mean anything to you but whatever.";
-		this.logger.info(`${runID} Run Success!`)
+		this.logger?.info(`${runID} Run Success!`)
 		embed.setFooter({ text: `Pong 🏓! (${diff})` });
 		return interaction.editReply({ embeds: [embed] });
 	}

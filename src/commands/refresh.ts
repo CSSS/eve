@@ -1,5 +1,5 @@
 import { ChatInputCommand, Command } from '@sapphire/framework';
-import Watcher from '../logging/watcher';
+import { Watcher } from '../logging/watcher';
 
 export class RefreshCommand extends Command {
     public constructor(context: Command.Context, options: Command.Options) {

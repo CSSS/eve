@@ -1,9 +1,10 @@
 import { ChatInputCommand, Command } from "@sapphire/framework";
 import { EmbedBuilder } from "discord.js";
+import { Logger } from "winston";
 import WinstonLogger from "../logging/logger";
 
 export class EchoCommand extends Command {
-	private logger: any;
+	private logger?: Logger;
     public constructor (context: Command.Context, options: Command.Options) {
         super(context, {...options})
     }
@@ -26,7 +27,7 @@ export class EchoCommand extends Command {
 		const author = Object.assign(interaction.user, { name: interaction.user.username, icon_url: interaction.user.avatarURL() || undefined });
 		const message = interaction.options.data.map(_ => typeof(_.value) === 'string' ? _.value : "").join("")
 		const runID = `[EchoCommand ChatInputRun #${interaction.id}]`;
-		this.logger.info(`${runID} ${interaction.user.username} echoed: "${message}"`)
+		this.logger?.info(`${runID} ${interaction.user.username} echoed: "${message}"`)
 		return interaction.reply({
 			embeds: [
 				new EmbedBuilder({
