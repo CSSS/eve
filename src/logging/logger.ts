@@ -1,17 +1,11 @@
 import { createLogger, format as WinstonFormat, transports as WinstonTransports } from "winston";
 import { FileTransportOptions } from "winston/lib/winston/transports";
-import {Watcher} from "./watcher";
-import * as stream from "stream";
-import {strftime} from "../strftime";
+import { strftime } from "../strftime";
+import { Watcher } from "./watcher";
+
 export let logsPath = "logs/";
-
-
 export let loggerNameSuffixInfo = "-info";
-
-
 export let loggerNameSuffixError = "-error";
-
-
 export let logFileExtension = ".log";
 
 export let process_time : String | null = null;
@@ -35,33 +29,32 @@ namespace WinstonLogger {
         level: 'error',
         format: combine(myTimestamp(), myFormat)
     }, options))
-    export const Initialise = async (cmd: string | null = null) => {
-        if (process_time === null){
+    export const Initialise = async (cmd: string = 'eve') => {
+        if (process_time === null) {
             process_time = strftime("%G-%m-%d_%I-%M-%S-%p", new Date())
         }
-        if (cmd === null){
-            cmd = "eve";
-        }
+
         const winstonLogger = createLogger({
             transports: [
                 defaultWinstonInfoFileTransports(cmd),
                 defaultWinstonErrorsFileTransports(cmd),
             ]
         })
-        if (cmd === "eve"){
-            Object.assign(console,
-                {
-                    log: function (args: any) {
-                        winstonLogger.info(args);
-                    }
-                    // modify the global console
+
+        if (cmd === "eve") {
+            // modify the global console
+            const originLog = console.log;
+            Object.assign(console, {
+                log: function (args: any) {
+                    winstonLogger.info(args);
+                    originLog(args);
                 }
-            );
+            });
             await Watcher.Add(cmd)
         } else {
             await Watcher.Add(cmd)
-            return winstonLogger;
         }
+        return winstonLogger;
     }
 }
 
