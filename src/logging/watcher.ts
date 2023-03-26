@@ -5,7 +5,8 @@ import fs from 'fs';
 // @ts-ignore
 import path from 'path';
 import Bot from '../botClient';
-import { logFileExtension, loggerNameSuffixError, loggerNameSuffixInfo, logsPath, process_time } from "./logger";
+import WinstonLogger from './logger';
+let { LOG_EXT, LOG_PATH, LOG_SFX_ERR, LOG_SFX_INF } = WinstonLogger;
 
 export class Watcher {
     private static instance: Watcher;
@@ -32,6 +33,7 @@ export class Watcher {
     }
 
     public static async Add(commandName: string = 'eve') {
+        console.info(`Applying watcher to ${commandName}...`);
         if (this.instance === undefined) {
             this.instance = new Watcher();
         }
@@ -55,7 +57,7 @@ export class Watcher {
         this.instance.categoryCache[process.env.GUILD_ID!] = category
 
         // creating the info channel
-        const info_channel_name = `${commandName}${loggerNameSuffixInfo}`
+        const info_channel_name = `${commandName}${LOG_SFX_INF}`
         let info_channel = this.instance.channelCache[process.env.GUILD_ID+info_channel_name] || guild.channels.cache.find((_c) => _c.name == info_channel_name);
         if (info_channel && info_channel instanceof Discord.TextChannel) {
             console.info(`${commandName}: ${info_channel_name}: channel exists already.`)
@@ -70,7 +72,7 @@ export class Watcher {
         }
 
         // creating the error channel
-        const error_channel_name = `${commandName}${loggerNameSuffixError}`
+        const error_channel_name = `${commandName}${LOG_SFX_ERR}`
         let error_channel = this.instance.channelCache[process.env.GUILD_ID+error_channel_name] || guild.channels.cache.find((_c) => _c.name == error_channel_name);
         if (error_channel && error_channel instanceof Discord.TextChannel) {
             console.info(`${commandName}: ${error_channel_name}: channel exists already.`)
@@ -91,11 +93,15 @@ export class Watcher {
         await info_channel.setParent(category);
 
         // assign watcher
-        this.AddWatcher(path.resolve(`${logsPath}${process_time}-${commandName}${loggerNameSuffixError}${logFileExtension}`), error_channel);
-        this.AddWatcher(path.resolve(`${logsPath}${process_time}-${commandName}${loggerNameSuffixInfo}${logFileExtension}`), info_channel);
+        this.instance.Add(path.resolve(`${LOG_PATH}${WinstonLogger.process_time}-${commandName}${LOG_SFX_ERR}${LOG_EXT}`), error_channel);
+        this.instance.Add(path.resolve(`${LOG_PATH}${WinstonLogger.process_time}-${commandName}${LOG_SFX_INF}${LOG_EXT}`), info_channel);
+
+        console.info(`Done [${commandName}].`)
     }
 
-    public static AddWatcher(relativePath: fs.PathLike, channel: Discord.TextChannel) {
+    private Add(relativePath: fs.PathLike, channel: Discord.TextChannel) {
+        console.info(`\\=> ${relativePath}...`);
+
         // watch for file change
         const fswatcher = fs.watchFile(relativePath, async (_cur, _prev) => {
 
@@ -127,7 +133,7 @@ export class Watcher {
                 });
             });
         });
-        this.instance.FSwatchers.push(fswatcher);
+        this.FSwatchers.push(fswatcher);
     }
 
     private constructor() {
