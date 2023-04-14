@@ -1,5 +1,5 @@
 // @ts-ignore
-import Discord, { ChannelType } from 'discord.js';
+import Discord, { CategoryChannel, ChannelType } from 'discord.js';
 // @ts-ignore
 import fs from 'fs';
 // @ts-ignore
@@ -12,23 +12,50 @@ export class Watcher {
     private static instance: Watcher;
 
     public static async RefreshLogChannels(guildID: string) {
+        // 1. Get guild either from cache or directly from the bot.
         const guild = this.instance.guildCache[guildID] || await Bot.Client.guilds.fetch(guildID);
-        this.instance.guildCache[guildID] = guild;
+        
+        // 2. Make sure guild is valid.
+        const valid = Bot?.Client.id && (await guild.members.fetch())?.has(Bot.Client.id);
+        if (!valid) {
+            // 2.a. Bot is not initialised (how?) or guild kicked our bot out. This doesn't concern the bot anymore.
+            return;
+        }
+        else {
+            // 2.b. Save the guild in cache.
+            this.instance.guildCache[guildID] = guild;
+        }
 
-        const categoryChannels = Array.from(guild.channels.cache.filter((_c: { type: ChannelType; name: string; }) => _c.type === ChannelType.GuildCategory && _c.name === "EVE LOGS").values()) as Discord.CategoryChannel[];
+        // 3. Get all categories that are named "EVE LOGS".
+        const categoryChannels = await guild.channels.fetch().then(cs => 
+            Array.from(cs.values())
+                .filter(_c => _c && _c.type === ChannelType.GuildCategory && _c.name === "EVE LOGS")) as CategoryChannel[];
+
+        // 4. If there are more than one EVE LOGS,
         if (categoryChannels.length > 1) {
+            // 4.a. There shouldn't be more than one EVE LOGS category.
+            // 4.a.1. Select one of them to be the only category channel.
             const chosenCat = categoryChannels.shift()!;
+
+            // 4.a.2. Go through all other categories.
             categoryChannels.forEach(_cc => {
-                const allchildren = Array.from(_cc.children.valueOf().values());
-                allchildren.forEach(_c => {
+                // 4.a.2.1. Get all child channels into one array, then set their parents to be the chosen category channel.
+                const allChildren = Array.from(_cc.children.valueOf().values());
+                allChildren.forEach(_c => {
                     // @ts-ignore
                     _c.setParent(chosenCat);
                 });
+                
+                // 4.a.2.2. And then we delete the extra categories.
                 if (_cc.deletable) _cc.delete().catch((_err: any) => console.error);
             });
         }
         else if (categoryChannels.length === 0) {
-            
+            // 4.b. There should be at least one EVE LOGS category.
+            await guild.channels.create({
+                type: ChannelType.GuildCategory,
+                name: "EVE LOGS"
+            })
         }
     }
 

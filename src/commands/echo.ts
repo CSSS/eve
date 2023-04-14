@@ -2,7 +2,9 @@ import { ChatInputCommand, Command } from "@sapphire/framework";
 import { EmbedBuilder } from "discord.js";
 import { Logger } from "winston";
 import WinstonLogger from "../logging/logger";
+import { Watcher } from "../logging/watcher";
 
+// ECHO: The bot repeats what the user says in a beautiful embed.
 export class EchoCommand extends Command {
 	private logger?: Logger;
     public constructor (context: Command.Context, options: Command.Options) {
@@ -10,24 +12,40 @@ export class EchoCommand extends Command {
     }
 
     public override async registerApplicationCommands(registry: ChatInputCommand.Registry) {
-		this.logger = await WinstonLogger.Initialise('echo')
+		// this.logger is a customised Winston Logger. It logs onto the console and onto Winston (file system) at the same time.
+		this.logger = await WinstonLogger.Initialise('echo');
+
+		// Watcher doesn't need a reference. It simply looks for a file related to the command name ('echo').
+		await Watcher.Add('echo');
 		registry.registerChatInputCommand(builder => {
 			builder
 				.setName("echo")
 				.setDescription("Let the bot speak what you dare not.")
 				.addStringOption(option =>
-					option
+					option // param 1: the string message to be sent (required)
 						.setName("message")
 						.setDescription("anything, really")
 						.setRequired(true))
 		})
 	}
 
-	public async chatInputRun(interaction: Command.ChatInputCommandInteraction, context: ChatInputCommand.RunContext) {
-		const author = Object.assign(interaction.user, { name: interaction.user.username, icon_url: interaction.user.avatarURL() || undefined });
-		const message = interaction.options.data.map(_ => typeof(_.value) === 'string' ? _.value : "").join("")
+	public chatInputRun(interaction: Command.ChatInputCommandInteraction, context: ChatInputCommand.RunContext) {
+		// 1. Set author and message. Makes the data more clear to the EmbedBuilder.
+		// 	EmbedBuilder requires "name" and "icon_url" properties, which are both inconsistent in interaction.user.
+		const author = Object.assign(interaction.user, {
+			name: interaction.user.username,
+			icon_url: interaction.user.avatarURL() || undefined
+		});
+		const message = interaction.options.data
+			.map(_ => typeof(_.value) === 'string' ? _.value : "")
+			.join("");
+		
+		// 2. RunID is the string tagged to the beginning of the console message.
+		//	Notify the logger someone's called the echo command.
 		const runID = `[EchoCommand ChatInputRun #${interaction.id}]`;
 		this.logger?.info(`${runID} ${interaction.user.username} echoed: "${message}"`)
+		
+		// 3. Send embed.
 		return interaction.reply({
 			embeds: [
 				new EmbedBuilder({
