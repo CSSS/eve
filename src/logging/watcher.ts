@@ -10,7 +10,14 @@ let { LOG_EXT, LOG_PATH, LOG_SFX_ERR, LOG_SFX_INF } = WinstonLogger;
 
 export class Watcher {
     private static instance: Watcher;
+    public static categoryName: string = "EVE LOGS";
 
+    /**
+     * When creating discord categories, more than 1 categories might appear with channels scattered between them.
+     * Call this function to centralise them.
+     * @deprecated The bug shouldn't appear anymore now.
+     * @param guildID The id of the server which needs centralising.
+     */
     public static async RefreshLogChannels(guildID: string) {
         // 1. Get guild either from cache or directly from the bot.
         const guild = this.instance.guildCache[guildID] || await Bot.Client.guilds.fetch(guildID);
@@ -29,7 +36,7 @@ export class Watcher {
         // 3. Get all categories that are named "EVE LOGS".
         const categoryChannels = await guild.channels.fetch().then(cs => 
             Array.from(cs.values())
-                .filter(_c => _c && _c.type === ChannelType.GuildCategory && _c.name === "EVE LOGS")) as CategoryChannel[];
+                .filter(_c => _c && _c.type === ChannelType.GuildCategory && _c.name === Watcher.categoryName)) as CategoryChannel[];
 
         // 4. If there are more than one EVE LOGS,
         if (categoryChannels.length > 1) {
@@ -54,11 +61,15 @@ export class Watcher {
             // 4.b. There should be at least one EVE LOGS category.
             await guild.channels.create({
                 type: ChannelType.GuildCategory,
-                name: "EVE LOGS"
+                name: Watcher.categoryName
             })
         }
     }
 
+    /**
+     * Create discord channels to watch for changes in its corresponding log files. 
+     * @param commandName Command to watch for
+     */
     public static async Add(commandName: string = 'eve') {
         console.info(`Applying watcher to ${commandName}...`);
         if (this.instance === undefined) {
@@ -79,7 +90,7 @@ export class Watcher {
         }
         else {
             console.info(`${commandName}: category doesn't exist yet. creating...`)
-            category = await guild.channels.create({ name: "EVE LOGS", type: ChannelType.GuildCategory });
+            category = await guild.channels.create({ name: Watcher.categoryName, type: ChannelType.GuildCategory });
         }
         this.instance.categoryCache[process.env.GUILD_ID!] = category
 
@@ -120,13 +131,23 @@ export class Watcher {
         await info_channel.setParent(category);
 
         // assign watcher
-        this.instance.Add(path.resolve(`${LOG_PATH}${WinstonLogger.process_time}-${commandName}${LOG_SFX_ERR}${LOG_EXT}`), error_channel);
-        this.instance.Add(path.resolve(`${LOG_PATH}${WinstonLogger.process_time}-${commandName}${LOG_SFX_INF}${LOG_EXT}`), info_channel);
+        const cmd = `${LOG_PATH}${WinstonLogger.process_time}-${commandName}`
+        this.instance.WatchFile(
+            path.resolve(`${cmd}${LOG_SFX_ERR}${LOG_EXT}`),
+            error_channel);
+        this.instance.WatchFile(
+            path.resolve(`${cmd}${LOG_SFX_INF}${LOG_EXT}`),
+            info_channel);
 
-        console.info(`Done [${commandName}].`)
+        console.info(`Watcher added for [${commandName}].`)
     }
 
-    private Add(relativePath: fs.PathLike, channel: Discord.TextChannel) {
+    /**
+     * Blackboxing the process of watching changes in the log file and then sending it over to the channel.
+     * @param relativePath path to log file
+     * @param channel discord channel
+     */
+    private WatchFile(relativePath: fs.PathLike, channel: Discord.TextChannel) {
         console.info(`\\=> ${relativePath}...`);
 
         // watch for file change

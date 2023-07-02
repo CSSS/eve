@@ -36,8 +36,13 @@ namespace WinstonLogger {
             format: combine(DEFAULT_TS(), DEFAULT_FORM)
         }, options))}
 
+    /**
+     * Initialise a Winston logger and have logs logged into a file named after cmd (first param) under the "logs" folder.
+     * If this is the first time this function is called, it will generate a Winston Logger first with cmd "eve", change the global console.log / err to call winston log / err alongside.
+     * @param cmd 
+     * @returns a Winston Logger, unless trying to with cmd == eve for a second time, in which case a null is returned.
+     */
     export const Initialise = async (cmd: string = 'eve') => {
-        console.info(`Initialising logger for ${cmd}...`)
         // 1. If process time is null, this is the first "Initialise" call.
         //  Modify global console in the first call.
         //  It will redirect any console calls to {cmd}_info / {cmd}_error logger
@@ -46,7 +51,7 @@ namespace WinstonLogger {
             process_time = strftime("%G-%m-%d_%I-%M-%S-%p", new Date())
 
             // 1.2 Initialise eve logger. It will log every console.log in the file.
-            eve_logger = await Initialise();
+            eve_logger = (await Initialise())!;
             
             // 1.3 make console.log call eve logger (Winston Logger) as well.
             const console_log = console.log;
@@ -58,6 +63,11 @@ namespace WinstonLogger {
                 }
             })
         }
+
+        // preventing creating 2 eve loggers when Initialise is called at the beginning.
+        if (cmd === 'eve' && eve_logger !== null) return;
+
+        console.info(`Initialising logger for ${cmd}...`)
 
         // 2. Create logger using the file-transports.
         const winstonLogger = createLogger({
