@@ -46,7 +46,7 @@ export class PingCommand extends Command {
           // send mail with defined transport object
           const info = await transporter.sendMail({
             from: process.env.MAIL_EMAIL,
-            to: interaction.options.get('email')!,
+            to: interaction.options.getString('email')!,
             subject: "A test email.",
             html: response
           });
