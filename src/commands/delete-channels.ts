@@ -1,6 +1,7 @@
 import { ChatInputCommand, Command } from '@sapphire/framework';
 import { CategoryChannel, ChannelType } from 'discord.js';
 import Bot from '../botClient';
+import { Watcher } from '../logging/watcher';
 
 // DELETE CHANNELS: delete "EVE LOGS" and all its child channels
 export class RefreshCommand extends Command {
@@ -25,7 +26,7 @@ export class RefreshCommand extends Command {
         // 2. Get all channels that's named "EVE LOGS" and is a category.
         const categoryChannels = await guild.channels.fetch().then(cs => 
             Array.from(cs.values())
-                .filter(_c => _c && _c.type === ChannelType.GuildCategory && _c.name === "EVE LOGS")) as CategoryChannel[];
+                .filter(_c => _c && _c.type === ChannelType.GuildCategory && _c.name === Watcher.categoryName)) as CategoryChannel[];
 
         // 3. Go through all Categories and delete all channels underneath each. 
         categoryChannels.forEach(_category => {
