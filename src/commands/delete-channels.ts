@@ -3,8 +3,11 @@ import { CategoryChannel, ChannelType } from 'discord.js';
 import Bot from '../botClient';
 import { Watcher } from '../logging/watcher';
 
-// DELETE CHANNELS: delete "EVE LOGS" and all its child channels
-export class RefreshCommand extends Command {
+/**
+ * Command: /delete
+ * Purpose: delete "EVE LOGS" and all its child channels.
+ */
+export class DeleteCommand extends Command {
     public constructor(context: Command.Context, options: Command.Options) {
         super(context, {...options});
     }

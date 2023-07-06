@@ -4,7 +4,10 @@ import { Logger } from "winston";
 import WinstonLogger from "../logging/logger";
 import { Watcher } from "../logging/watcher";
 
-// ECHO: The bot repeats what the user says in a beautiful embed.
+/**
+ * Command: /echo [message]
+ * Purpose: The bot repeats what the user says in a beautiful embed.
+ */
 export class EchoCommand extends Command {
 	private logger?: Logger;
     public constructor (context: Command.Context, options: Command.Options) {

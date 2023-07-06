@@ -4,7 +4,11 @@ import { Logger } from 'winston';
 import WinstonLogger from '../logging/logger';
 import { Watcher } from '../logging/watcher';
 
-// PING: Sends a "followUp" to the server and returning, calculating the difference in timestamp to get an estimate on ping.
+
+/**
+ * Command: /ping
+ * Purpose: Sends a "followUp" to the server and returning, calculating the difference in timestamp to get an estimate on ping.
+ */
 export class PingCommand extends Command {
 	private logger?: Logger;
 	public constructor(context: Command.Context, options: Command.Options) {

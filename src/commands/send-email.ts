@@ -2,7 +2,11 @@ import { ChatInputCommand, Command } from '@sapphire/framework';
 import Mailgen from 'mailgen';
 import { createTransport } from 'nodemailer';
 
-export class PingCommand extends Command {
+/**
+ * Command: /echo [email address]
+ * Purpose: Sends a sample email to the address provided.
+ */
+export class SendEmailCommand extends Command {
     public constructor(context: Command.Context, options: Command.Options) {
         super(context, {...options});
     }

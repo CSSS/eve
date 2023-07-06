@@ -1,6 +1,10 @@
 import { ChatInputCommand, Command } from '@sapphire/framework';
 import { Watcher } from '../logging/watcher';
 
+/**
+ * Command: /refresh
+ * Purpose: In case of multiple EVE LOGS categories, use this command.
+ */
 export class RefreshCommand extends Command {
     public constructor(context: Command.Context, options: Command.Options) {
         super(context, {...options});
