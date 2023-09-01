@@ -1,0 +1,11 @@
+version: '3' #docker-compose version
+services:  #Services that are needed for the eve app
+  eve: #the eve app, the name will of the image will be ${COMPOSE_PROJECT_NAME}_eve
+    build:
+      context: ../ #Saying that all of my source files are at the root path
+      dockerfile: CI/Dockerfile
+    environment:
+      - BOT_TOKEN
+      - GUILD_ID
+    container_name: "${COMPOSE_PROJECT_NAME}"
+    image: "${COMPOSE_PROJECT_NAME}"
