@@ -1,10 +1,12 @@
 import { SapphireClient as Client } from "@sapphire/framework";
-const {GatewayIntentBits} = require('discord.js');
-import {EveLogger} from "./logging/logInitializer";
-import {EveLogUploader} from "./logging/logUploader";
-const { REST, Routes } = require('discord.js');
+
 // import dotenv from 'dotenv';
 // dotenv.config();
+import { GatewayIntentBits, REST, Routes } from "discord.js";
+import dotenv from 'dotenv';
+import { EveLogger } from "./logging/logInitializer";
+import { EveLogUploader } from "./logging/logUploader";
+dotenv.config();
 
 export class Bot {
     static Client = new Client({

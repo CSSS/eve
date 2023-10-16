@@ -1,9 +1,8 @@
-import {format as WinstonFormat, transports as WinstonTransports, createLogger} from 'winston';
+import { Logger, format as WinstonFormat, transports as WinstonTransports, createLogger } from 'winston';
 import * as Transport from 'winston-transport';
-const {combine, printf} = WinstonFormat
 import { FileTransportOptions } from "winston/lib/winston/transports";
 import { strftime } from "../utilities/strftime";
-import {Logger} from "winston";
+const {combine, printf} = WinstonFormat
 
 
 // set up winston logger
