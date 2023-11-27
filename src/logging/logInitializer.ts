@@ -47,7 +47,7 @@ export class EveLogger {
         }, options))
     }
 
-    public static getTimeStamp = strftime("%G-%m-%d %I:%M:%S", new Date())
+    public static getTimeStamp = strftime("%G-%m-%d %I-%M-%S", new Date())
 
     /**
      * setups the formatting for the log entry
@@ -81,7 +81,7 @@ export class EveLogger {
             ]
         });
         // 3. Customise the Winston Logger.
-        const original_winston_debug = this.cmd_logger.debug;
+                const original_winston_debug = this.cmd_logger.debug;
         const original_winston_error = this.cmd_logger.error;
         const original_winston_info = this.cmd_logger.info;
         const original_winston_warn = this.cmd_logger.warn;

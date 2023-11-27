@@ -166,8 +166,8 @@ export class EveLogUploader {
             if (message?.length > 0) {
                 const lines = message.split("\n")
                 for (let i = 0; i < lines.length; i++) {
-                    if (lines[i].length > 0) {
-                        await local_log_channel.send(lines[i]);
+                    if (lines[i].length > 0 && lines[i] !== '\r') {
+                        await local_log_channel.send(`\`${lines[i]}\``);
                     }
                 }
             }
@@ -197,7 +197,7 @@ export class EveLogUploader {
                     const msgString = buffer.toString('utf8', 0, num);
                     for (const line of msgString.split(/[\r\n]+/)) {
                         if (line.length > 0) {
-                            local_log_channel.send(line);
+                            local_log_channel.send(`\`${line}\``);
                         }
                     }
                 });
