@@ -20,7 +20,8 @@ export GUILD_ID="465036366699429888";
             }
         }
         stage('Deploy To PROD Guild'){
-        steps {
+            when { branch 'master' }
+            steps {
             withCredentials([string(credentialsId: 'EVE_PROD_DISCORD_BOT_TOKEN', variable: 'EVE_PROD_DISCORD_BOT_TOKEN'),
             string(credentialsId: 'MEE6_AUTHORIZATION', variable: 'MEE6_AUTHORIZATION'),
             string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN')]) {
