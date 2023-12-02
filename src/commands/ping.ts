@@ -9,7 +9,6 @@ import { Logger } from 'winston';
 import {EveLogger} from '../logging/logInitializer';
 import { EveLogUploader } from '../logging/logUploader';
 
-
 /**
  * Command: /ping
  * Purpose: Sends a "followUp" to the server and returning, calculating the difference in timestamp to get an estimate on ping.
@@ -52,7 +51,7 @@ export class PingCommand extends Command {
 		// 2. Send a loading embed, tell the user it's sending the ping. (usually only appears for a very short amount of time)
 		const embed = new EmbedBuilder({
 			author: Object.assign(interaction.user, { name: interaction.user.username, icon_url: interaction.user.avatarURL() || undefined }),
-			footer: { text: "Sending ping..." }
+			description : "Sending ping..."
 		})
 		const msg = await interaction.followUp({ embeds: [embed] });
 
@@ -66,7 +65,7 @@ export class PingCommand extends Command {
 		this.logger?.info(`${runID} Run Success!`)
 		
 		// 5. Change up the embed a little to show ping/delay, and then edit the "Loading" embed.
-		embed.setFooter({ text: `Pong 🏓! (${diff})` });
+		embed.setDescription( `Pong 🏓! (${diff})`);
 		return interaction.editReply({ embeds: [embed] });
 	}
 }
