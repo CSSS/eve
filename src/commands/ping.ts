@@ -1,4 +1,9 @@
-import { ChatInputCommand, Command } from '@sapphire/framework';
+import {
+	ApplicationCommandRegistry,
+	ApplicationCommandRegistryRegisterOptions,
+	Command,
+	RegisterBehavior
+} from '@sapphire/framework';
 import { EmbedBuilder, Message } from 'discord.js';
 import { Logger } from 'winston';
 import {EveLogger} from '../logging/logInitializer';
@@ -15,7 +20,7 @@ export class PingCommand extends Command {
 		super(context, {...options});
 	}
 
-	public override async registerApplicationCommands(registry: ChatInputCommand.Registry) {
+	public override async registerApplicationCommands(registry: ApplicationCommandRegistry) {
 		// this.logger is a customised Winston Logger. It logs onto the console and onto Winston (file system) at the same time.
 		this.logger = (new EveLogger('ping')).cmd_logger;
 
@@ -23,14 +28,21 @@ export class PingCommand extends Command {
 		let watcher = new EveLogUploader();
 		await watcher.setupCategoryAndLogChannels(this.logger, 'ping');
 		watcher.UploadLogsToDiscord();
+		let opt  : ApplicationCommandRegistryRegisterOptions = new class implements ApplicationCommandRegistry.RegisterOptions {
+			behaviorWhenNotIdentical: Exclude<RegisterBehavior, RegisterBehavior.BulkOverwrite>;
+			guildIds: string[];
+			idHints: string[];
+			registerCommandIfMissing: boolean;
+		}
+		opt.guildIds = [process.env.GUILD_ID]
 		registry.registerChatInputCommand((builder) =>
 			builder
 				.setName('ping')
-				.setDescription('Ping bot to see if it is alive')
+				.setDescription('Ping bot to see if it is alive'), opt
 		);
 	}
 
-	public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
+	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
 		await interaction.deferReply(); // async command. Requires a defer in reply in case async takes too long.
 
 		// 1. RunID is the string tagged to the beginning of the console message.

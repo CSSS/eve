@@ -1,4 +1,9 @@
-import { ChatInputCommand, Command } from "@sapphire/framework";
+import {
+	ApplicationCommandRegistry,
+	ApplicationCommandRegistryRegisterOptions,
+	Command,
+	RegisterBehavior
+} from "@sapphire/framework";
 import { EmbedBuilder } from "discord.js";
 import { Logger } from "winston";
 import {EveLogger} from "../logging/logInitializer";
@@ -14,7 +19,7 @@ export class EchoCommand extends Command {
         super(context, {...options})
     }
 
-    public override async registerApplicationCommands(registry: ChatInputCommand.Registry) {
+    public override async registerApplicationCommands(registry: ApplicationCommandRegistry) {
 		// this.logger is a customised Winston Logger. It logs onto the console and onto Winston (file system) at the same time.
 		this.logger = (new EveLogger('echo')).cmd_logger;
 
@@ -22,6 +27,13 @@ export class EchoCommand extends Command {
 		let watcher = new EveLogUploader();
 		await watcher.setupCategoryAndLogChannels(this.logger, 'echo');
 		watcher.UploadLogsToDiscord();
+		let opt  : ApplicationCommandRegistryRegisterOptions = new class implements ApplicationCommandRegistry.RegisterOptions {
+			behaviorWhenNotIdentical: Exclude<RegisterBehavior, RegisterBehavior.BulkOverwrite>;
+			guildIds: string[];
+			idHints: string[];
+			registerCommandIfMissing: boolean;
+		}
+		opt.guildIds = [process.env.GUILD_ID]
 		registry.registerChatInputCommand(builder => {
 			builder
 				.setName("echo")
@@ -31,10 +43,10 @@ export class EchoCommand extends Command {
 						.setName("message")
 						.setDescription("anything, really")
 						.setRequired(true))
-		})
+		}, opt)
 	}
 
-	public chatInputRun(interaction: Command.ChatInputCommandInteraction, context: ChatInputCommand.RunContext) {
+	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
 		// 1. Set author and message. Makes the data more clear to the EmbedBuilder.
 		// 	EmbedBuilder requires "name" and "icon_url" properties, which are both inconsistent in interaction.user.
 		const author = Object.assign(interaction.user, {
