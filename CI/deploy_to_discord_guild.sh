@@ -9,15 +9,24 @@ rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
 export docker_compose_file="CI/docker-compose.yml"
 
-docker rm -f eve || true
-docker image rm -f eve || true
+if [[ "${COMPOSE_PROJECT_NAME}" == "eve_test" ]]; then
+    container_name="eve_test"
+    image_name="eve_test"
+else
+    container_name="eve_prod"
+    image_name="eve_prod"
+fi
+
+docker rm -f "${container_name}" || true
+docker image rm -f "${image_name}" || true
+
 BOT_TOKEN="${TOKEN}" GUILD_ID="${GUILD_ID}" docker-compose -f "${docker_compose_file}" up -d
 sleep 20
 
-container_failed=$(docker ps -a -f name=eve --format "{{.Status}}" | head -1)
+container_failed=$(docker ps -a -f name="${container_name}" --format "{{.Status}}" | head -1)
 
 if [[ "${container_failed}" != *"Up"* ]]; then
-    docker logs eve
-    docker logs eve --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
+    docker logs "${container_name}"
+    docker logs "${container_name}" --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
 fi
