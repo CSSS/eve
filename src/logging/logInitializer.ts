@@ -1,4 +1,5 @@
 import {format as WinstonFormat, transports as WinstonTransports, createLogger} from 'winston';
+import * as Transport from 'winston-transport';
 const {combine, printf} = WinstonFormat
 import { FileTransportOptions } from "winston/lib/winston/transports";
 import { strftime } from "../utilities/strftime";
@@ -24,7 +25,7 @@ export class EveLogger {
      * @constructor
      * @private
      */
-    private DEFAULT_INFO_TSF(cmd: string = 'unknown', options: Partial<FileTransportOptions> = {}): WinstonTransports.FileTransportInstance {
+    private DEFAULT_INFO_TSF(cmd: string = 'unknown', options: Partial<FileTransportOptions> = {}): Transport {
         return new WinstonTransports.File(Object.assign({
             filename: `${EveLogger.LOG_PATH}${EveLogger.boot_time}-${cmd}${EveLogger.LOG_SFX_INF}${EveLogger.LOG_EXT}`,
             level: 'info',
@@ -39,7 +40,7 @@ export class EveLogger {
      * @constructor
      * @private
      */
-    private DEFAULT_ERR_TSF(cmd: string = 'unknown', options: Partial<FileTransportOptions> = {}): WinstonTransports.FileTransportInstance {
+    private DEFAULT_ERR_TSF(cmd: string = 'unknown', options: Partial<FileTransportOptions> = {}): Transport {
         return new WinstonTransports.File(Object.assign({
             filename: `${EveLogger.LOG_PATH}${EveLogger.boot_time}-${cmd}${EveLogger.LOG_SFX_ERR}${EveLogger.LOG_EXT}`,
             level: 'error',
@@ -75,12 +76,11 @@ export class EveLogger {
         console.info(`Initialising logger for ${cmd_name}...`)
         // 2. Create logger using the file-transports.
         this.cmd_logger = createLogger({
-            transports: [
+            transports : [
                 this.DEFAULT_INFO_TSF(cmd_name),
-                this.DEFAULT_ERR_TSF(cmd_name),
+                this.DEFAULT_ERR_TSF(cmd_name)
             ]
         });
-
         // 3. Customise the Winston Logger.
         const original_winston_debug = this.cmd_logger.debug;
         const original_winston_error = this.cmd_logger.error;

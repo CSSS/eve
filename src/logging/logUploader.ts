@@ -1,9 +1,5 @@
-import {
-    CategoryChannelResolvable,
-    ChannelType,
-    Guild,
-    TextChannel
-} from 'discord.js';
+import { CategoryChannelResolvable, Guild, TextChannel } from 'discord.js';
+import {ChannelType } from 'discord-api-types/v10';
 import fs from 'fs';
 import path from 'path';
 import {Bot} from '../index';
