@@ -20,7 +20,7 @@ fi
 docker rm -f "${container_name}" || true
 docker image rm -f "${image_name}" || true
 
-BOT_TOKEN="${TOKEN}" GUILD_ID="${GUILD_ID}" docker-compose -f "${docker_compose_file}" up -d
+BOT_TOKEN="${TOKEN}" GUILD_ID="${GUILD_ID}" CLIENT_ID="${CLIENT_ID}" docker-compose -f "${docker_compose_file}" up -d
 sleep 20
 
 container_failed=$(docker ps -a -f name="${container_name}" --format "{{.Status}}" | head -1)

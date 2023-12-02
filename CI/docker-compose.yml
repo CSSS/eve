@@ -7,5 +7,6 @@ services:  #Services that are needed for the eve app
     environment:
       - BOT_TOKEN
       - GUILD_ID
+      - CLIENT_ID
     container_name: "${COMPOSE_PROJECT_NAME}"
     image: "${COMPOSE_PROJECT_NAME}"

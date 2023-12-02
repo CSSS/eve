@@ -9,10 +9,12 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'EVE_STAGING_DISCORD_BOT_TOKEN', variable: 'EVE_STAGING_DISCORD_BOT_TOKEN'),
                 string(credentialsId: 'MEE6_AUTHORIZATION', variable: 'MEE6_AUTHORIZATION'),
-                string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN')]) {
+                string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN'),
+                string(credentialsId: 'EVE_TEST_CLIENT_ID', variable: 'EVE_TEST_CLIENT_ID')]) {
                     sh('''
 export COMPOSE_PROJECT_NAME=eve_test;
 export TOKEN=${EVE_STAGING_DISCORD_BOT_TOKEN};
+export CLIENT_ID=${EVE_TEST_CLIENT_ID};
 export GUILD_ID="465036366699429888";
 ./CI/deploy_to_discord_guild.sh;
                     ''')
@@ -24,10 +26,12 @@ export GUILD_ID="465036366699429888";
             steps {
             withCredentials([string(credentialsId: 'EVE_PROD_DISCORD_BOT_TOKEN', variable: 'EVE_PROD_DISCORD_BOT_TOKEN'),
             string(credentialsId: 'MEE6_AUTHORIZATION', variable: 'MEE6_AUTHORIZATION'),
-            string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN')]) {
+            string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN'),
+            string(credentialsId: 'EVE_PROD_CLIENT_ID', variable: 'EVE_PROD_CLIENT_ID')]) {
                 sh('''
 export COMPOSE_PROJECT_NAME=eve_prod;
 export TOKEN=${EVE_PROD_DISCORD_BOT_TOKEN};
+export CLIENT_ID=${EVE_PROD_CLIENT_ID};
 export GUILD_ID="228761314644852736";
 ./CI/deploy_to_discord_guild.sh;
                 ''')
