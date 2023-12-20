@@ -15,7 +15,7 @@ import { EveLogUploader } from "../logging/logUploader";
  */
 export class EchoCommand extends Command {
 	private logger?: Logger;
-    public constructor (context: Command.Context, options: Command.Options) {
+    public constructor (context: Command.LoaderContext, options: Command.Options) {
         super(context, {...options})
     }
 

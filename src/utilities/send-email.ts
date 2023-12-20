@@ -7,7 +7,7 @@ import { createTransport } from 'nodemailer';
  * Purpose: Sends a sample email to the address provided.
  */
 export class SendEmailCommand extends Command {
-    public constructor(context: Command.Context, options: Command.Options) {
+    public constructor(context: Command.LoaderContext, options: Command.Options) {
         super(context, {...options});
     }
 

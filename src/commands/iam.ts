@@ -13,7 +13,7 @@ export class IAMCommand extends Command {
 	public static readonly INVALID_ID = "_INVALID_";
 	public static readonly INVALID_COMMENT = '## Better improve the autocompletion results by typing more in the selection box.';
 	private logger?: Logger;
-    public constructor (context: Command.Context, options: Command.Options) {
+    public constructor (context: Command.LoaderContext, options: Command.Options) {
         super(context, {...options})
     }
 
