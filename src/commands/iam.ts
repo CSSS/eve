@@ -1,4 +1,4 @@
-import { ChatInputCommand, Command } from "@sapphire/framework";
+import { ApplicationCommandRegistry, ApplicationCommandRegistryRegisterOptions, ChatInputCommand, Command, RegisterBehavior } from "@sapphire/framework";
 import { EmbedBuilder, GuildMemberRoleManager } from "discord.js";
 import { Logger } from "winston";
 import { Bot } from "..";
@@ -23,6 +23,13 @@ export class IAMCommand extends Command {
 		let watcher = new EveLogUploader();
 		await watcher.setupCategoryAndLogChannels(this.logger, 'iam');
 		watcher.UploadLogsToDiscord();
+		let opt  : ApplicationCommandRegistryRegisterOptions = new class implements ApplicationCommandRegistry.RegisterOptions {
+			behaviorWhenNotIdentical: Exclude<RegisterBehavior, RegisterBehavior.BulkOverwrite>;
+			guildIds: string[];
+			idHints: string[];
+			registerCommandIfMissing: boolean;
+		}
+		opt.guildIds = [process.env.GUILD_ID]
 		registry.registerChatInputCommand(builder => {
 			builder
 				.setName("iam")
@@ -37,35 +44,35 @@ export class IAMCommand extends Command {
 	}
 
 	public async chatInputRun(interaction: Command.ChatInputCommandInteraction, context: ChatInputCommand.RunContext) {
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 
 		// 1. Create the embed used to respond to the user.
-		const course = interaction.options.getString('course');
+		const course_id = interaction.options.getString('course');
 		const embed = new EmbedBuilder({
 			author: Object.assign(interaction.user, {
 				name: interaction.user.username,
 				icon_url: interaction.user.avatarURL() || undefined
 			}),
-			description: `Cannot find role: "${course}"`,
+			description: `Cannot find role with invalid id: "${course_id}"`,
 			timestamp: interaction.createdTimestamp,
 		})
 
 		// 2. Log
 		const runID = `[IAMCommand ChatInputRun #${interaction.id}]`;
-		this.logger?.info(`${runID} ${interaction.user.username} selected: "${course}"`)
+		this.logger?.info(`${runID} ${interaction.user.username} selected: "${course_id}"`)
 
 		// 3. Get roles, and then assign.
 		const roles = await interaction.guild.roles.fetch();
-		const selected_role = roles.find(r => r.name === course);
+		const selected_role = roles.find(r => r.id === course_id);
 		if (selected_role) {
-			embed.setDescription(`You've been giving the role: "${course}"`);
+			embed.setDescription(`You've been giving the role: "${course_id}"`);
 			const gm_roles = interaction.member.roles as GuildMemberRoleManager;
 			await gm_roles.add(selected_role).catch(e => {
 				this.logger.error(`${runID} Couldn't add role to the interaction user ${interaction.user}.`);
 				this.logger.error(e);
 			});
 		}
-		else if (course === IAMCommand.INVALID_ID) {
+		else if (course_id === IAMCommand.INVALID_ID) {
 			embed.setAuthor(Object.assign(Bot.Client.user, {
 				name: Bot.Client.user.username,
 			}))
@@ -73,7 +80,7 @@ export class IAMCommand extends Command {
 		}
 		
 		return interaction.followUp({
-			embeds: [embed]
+			embeds: [embed], ephemeral: true
 		})
 	}
 }

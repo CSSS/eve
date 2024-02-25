@@ -1,5 +1,5 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
-import type { AutocompleteInteraction } from 'discord.js';
+import type { AutocompleteInteraction, GuildMemberRoleManager } from 'discord.js';
 import { IAMCommand } from '../../commands/iam';
 
 export class AutocompleteHandler extends InteractionHandler {
@@ -16,6 +16,8 @@ export class AutocompleteHandler extends InteractionHandler {
 
   public override async parse(interaction: AutocompleteInteraction) {
     if (interaction.commandName !== 'iam') return this.none();
+    const member_roles = interaction.member.roles as GuildMemberRoleManager;
+
     const fc = interaction.options.getFocused(true);
     const roles = await interaction.guild.roles.fetch()
     const rgx = /^[a-z]/g
@@ -23,6 +25,7 @@ export class AutocompleteHandler extends InteractionHandler {
       .filter(r => 
         r.name.match(fc.value)
         && r.name.match(rgx)
+        && !member_roles.cache.has(r.id)
       )
       .map(r => ({ "name": r.name, "value": r.id }));
     
