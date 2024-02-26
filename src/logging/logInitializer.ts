@@ -1,9 +1,8 @@
-import {format as WinstonFormat, transports as WinstonTransports, createLogger} from 'winston';
+import { Logger, format as WinstonFormat, transports as WinstonTransports, createLogger } from 'winston';
 import * as Transport from 'winston-transport';
-const {combine, printf} = WinstonFormat
 import { FileTransportOptions } from "winston/lib/winston/transports";
 import { strftime } from "../utilities/strftime";
-import {Logger} from "winston";
+const {combine, printf} = WinstonFormat
 
 
 // set up winston logger
@@ -48,7 +47,7 @@ export class EveLogger {
         }, options))
     }
 
-    public static getTimeStamp = strftime("%G-%m-%d %I:%M:%S", new Date())
+    public static getTimeStamp = strftime("%G-%m-%d %I-%M-%S", new Date())
 
     /**
      * setups the formatting for the log entry
@@ -82,7 +81,7 @@ export class EveLogger {
             ]
         });
         // 3. Customise the Winston Logger.
-        const original_winston_debug = this.cmd_logger.debug;
+                const original_winston_debug = this.cmd_logger.debug;
         const original_winston_error = this.cmd_logger.error;
         const original_winston_info = this.cmd_logger.info;
         const original_winston_warn = this.cmd_logger.warn;

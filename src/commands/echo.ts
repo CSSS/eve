@@ -6,7 +6,7 @@ import {
 } from "@sapphire/framework";
 import { EmbedBuilder } from "discord.js";
 import { Logger } from "winston";
-import {EveLogger} from "../logging/logInitializer";
+import { EveLogger } from "../logging/logInitializer";
 import { EveLogUploader } from "../logging/logUploader";
 
 /**
@@ -15,7 +15,7 @@ import { EveLogUploader } from "../logging/logUploader";
  */
 export class EchoCommand extends Command {
 	private logger?: Logger;
-    public constructor (context: Command.Context, options: Command.Options) {
+    public constructor (context: Command.LoaderContext, options: Command.Options) {
         super(context, {...options})
     }
 

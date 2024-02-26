@@ -2,9 +2,9 @@ import { CategoryChannelResolvable, Guild, TextChannel } from 'discord.js';
 import {ChannelType } from 'discord-api-types/v10';
 import fs from 'fs';
 import path from 'path';
-import {Bot} from '../index';
-import {EveLogger} from './logInitializer';
-import {Logger} from "winston";
+import { Logger } from "winston";
+import { Bot } from '../index';
+import { EveLogger } from './logInitializer';
 
 export class EveLogUploader {
     public static categoryName: string = "EVE LOGS";
@@ -31,7 +31,9 @@ export class EveLogUploader {
             'ping-info': 2,
             'ping-error': 3,
             'echo-info': 4,
-            'echo-error': 5
+            'echo-error': 5,
+            'iam-info': 6,
+            'iam-error': 7
         }
         this.cmd_logger = logger;
         this.cmd_logger.info(`Applying watcher to ${commandName}...`);
@@ -160,12 +162,12 @@ export class EveLogUploader {
         const local_log_file_path: fs.PathLike = log_file_path;
         let local_log_channel: TextChannel = log_channel;
         fs.readFile(local_log_file_path, async function (err, data) {
-            const message = data.toString();
-            if (message.length > 0) {
+            const message = data?.toString();
+            if (message?.length > 0) {
                 const lines = message.split("\n")
                 for (let i = 0; i < lines.length; i++) {
-                    if (lines[i].length > 0) {
-                        await local_log_channel.send(lines[i]);
+                    if (lines[i].length > 0 && lines[i] !== '\r') {
+                        await local_log_channel.send(`\`${lines[i]}\``);
                     }
                 }
             }
@@ -195,7 +197,7 @@ export class EveLogUploader {
                     const msgString = buffer.toString('utf8', 0, num);
                     for (const line of msgString.split(/[\r\n]+/)) {
                         if (line.length > 0) {
-                            local_log_channel.send(line);
+                            local_log_channel.send(`\`${line}\``);
                         }
                     }
                 });
