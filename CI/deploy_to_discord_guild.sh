@@ -5,8 +5,6 @@
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 
-rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
-
 export docker_compose_file="CI/docker-compose.yml"
 
 if [[ "${COMPOSE_PROJECT_NAME}" == "eve_test" ]]; then
@@ -27,6 +25,5 @@ container_failed=$(docker ps -a -f name="${container_name}" --format "{{.Status}
 
 if [[ "${container_failed}" != *"Up"* ]]; then
     docker logs "${container_name}"
-    docker logs "${container_name}" --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
 fi
